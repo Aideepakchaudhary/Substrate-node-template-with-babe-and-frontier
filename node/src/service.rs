@@ -570,16 +570,23 @@ pub fn new_full_base(
 	let fee_history_cache: FeeHistoryCache = Arc::new(Mutex::new(BTreeMap::new()));
 	let fee_history_cache_limit: FeeHistoryCacheLimit = 1000;
 	let filter_pool: Option<FilterPool> = Some(Arc::new(Mutex::new(BTreeMap::new())));
-	// spawn_frontier_tasks(
-	// 	&task_manager,
-	// 	client.clone(),
-	// 	backends,
-	// 	frontier_backend,
-	// 	filter_pool,
-	// 	overrides,
-	// 	fee_history_cache,
-	// 	fee_history_cache_limit,
-	// );  // Need to do this ???
+	let pubsub_notification_sinks: fc_mapping_sync::EthereumBlockNotificationSinks<
+		fc_mapping_sync::EthereumBlockNotification<Block>,
+	> = Default::default();
+	let pubsub_notification_sinks = Arc::new(pubsub_notification_sinks);
+
+	spawn_frontier_tasks(
+		&task_manager,
+		client.clone(),
+		backends,
+		frontier_backend,
+		filter_pool,
+		overrides,
+		fee_history_cache,
+		fee_history_cache_limit,
+		sync_service.clone(),
+		pubsub_notification_sinks,
+	);
 
 
 	if let Some(hwbench) = hwbench {
