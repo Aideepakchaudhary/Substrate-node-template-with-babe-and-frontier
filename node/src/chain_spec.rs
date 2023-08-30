@@ -567,11 +567,12 @@ pub fn development_genesis(
 }
 
 fn development_config_genesis() -> RuntimeGenesisConfig {
-	testnet_genesis(
+	development_genesis(
 		vec![authority_keys_from_seed("Alice")],
 		vec![],
 		get_account_id_from_seed::<sr25519::Public>("Alice"),
 		None,
+		42,   //passing chain_id = 42.  Need to change??
 	)
 }
 
@@ -587,7 +588,10 @@ pub fn development_config() -> ChainSpec {
 		None,
 		None,
 		None,
-		None,
+		Some(
+			serde_json::from_str("{\"tokenDecimals\": 18, \"tokenSymbol\": \"5IRE\"}")
+				.expect("Provided valid json map"),
+		),
 		Default::default(),
 	)
 }
@@ -612,7 +616,10 @@ pub fn local_testnet_config() -> ChainSpec {
 		None,
 		None,
 		None,
-		None,
+		Some(
+			serde_json::from_str("{\"tokenDecimals\": 18, \"tokenSymbol\": \"5IRE\"}")
+				.expect("Provided valid json map"),
+		),
 		Default::default(),
 	)
 }
