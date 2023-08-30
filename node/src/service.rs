@@ -52,6 +52,17 @@ use std::sync::Arc;
 // use fc_mapping_sync::{MappingSyncWorker, SyncStrategy};
 use fc_rpc::{EthTask, OverrideHandle};
 use fc_rpc_core::types::{FeeHistoryCache, FeeHistoryCacheLimit, FilterPool};
+use crate::{
+	client::{BaseRuntimeApiCollection, RuntimeApiCollection},
+	eth::{
+		new_frontier_partial, spawn_frontier_tasks, BackendType, EthCompatRuntimeApiCollection,
+		FrontierBackend, FrontierBlockImport, FrontierPartialComponents,
+	},
+};
+pub use crate::{
+	client::{Client, TemplateRuntimeExecutor},
+	eth::{db_config_dir, EthConfiguration},
+};
 
 /// The full client type definition.
 pub type FullClient =
