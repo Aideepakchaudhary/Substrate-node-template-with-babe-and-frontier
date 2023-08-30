@@ -44,9 +44,14 @@ use sc_transaction_pool_api::OffchainTransactionPoolFactory;
 use sp_api::ProvideRuntimeApi;
 use sp_core::crypto::Pair;
 use sp_runtime::{generic, traits::Block as BlockT, SaturatedConversion};
-use std::sync::Arc;
+// use std::sync::Arc;
 
-
+use std::{
+	collections::BTreeMap,
+	path::PathBuf,
+	sync::{Arc, Mutex},
+	time::Duration,
+};
 
 // Frontier
 //
@@ -560,6 +565,23 @@ pub fn new_full_base(
 		telemetry: telemetry.as_mut(),
 	})?;
 
+	let backends = backend.clone();
+
+	let fee_history_cache: FeeHistoryCache = Arc::new(Mutex::new(BTreeMap::new()));
+	let fee_history_cache_limit: FeeHistoryCacheLimit = 1000;
+	let filter_pool: Option<FilterPool> = Some(Arc::new(Mutex::new(BTreeMap::new())));
+	// spawn_frontier_tasks(
+	// 	&task_manager,
+	// 	client.clone(),
+	// 	backends,
+	// 	frontier_backend,
+	// 	filter_pool,
+	// 	overrides,
+	// 	fee_history_cache,
+	// 	fee_history_cache_limit,
+	// );  // Need to do this ???
+
+
 	if let Some(hwbench) = hwbench {
 		sc_sysinfo::print_hwbench(&hwbench);
 		if !SUBSTRATE_REFERENCE_HARDWARE.check_hardware(&hwbench) && role.is_authority() {
@@ -765,6 +787,9 @@ pub fn new_full_base(
 		rpc_handlers,
 	})
 }
+
+
+
 
 /// Builds a new service for a full client.
 pub fn new_full(
