@@ -2765,6 +2765,7 @@ dependencies = [
  "fc-mapping-sync",
  "fc-rpc",
  "fc-rpc-core",
+ "fc-storage",
  "firechain-runtime",
  "fp-consensus",
  "fp-dynamic-fee",

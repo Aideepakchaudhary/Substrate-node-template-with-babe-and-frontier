@@ -126,6 +126,7 @@ fp-evm = { version = "3.0.0-dev", path = "../primitives/evm", default-features =
 fp-rpc = { path = "../primitives/rpc" }
 fp-storage = { path = "../primitives/storage" }
 pallet-evm = { path = "../frame/evm" }
+fc-storage = { workspace = true }
 
 
 # Local Dependencies
