@@ -51,6 +51,9 @@ use sp_consensus_babe::BabeApi;
 use sp_keystore::KeystorePtr;
 use fp_storage::EthereumStorageSchema;
 
+mod eth;
+pub use self::eth::{create_eth, overrides_handle, EthDeps};
+
 /// Extra dependencies for BABE.
 pub struct BabeDeps {
 	/// A handle to the BABE worker for issuing requests.
