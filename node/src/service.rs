@@ -21,6 +21,7 @@
 //! Service implementation. Specialized wrapper over substrate service.
 use crate::rpc::{create_full, BabeDeps, FullDeps, GrandpaDeps, DenyUnsafe};
 // use fc_db::Backend as FrontierBackend;
+use firechain_runtime::TransactionConverter;
 
 
 // use crate::cli::Cli;
@@ -160,7 +161,7 @@ pub fn create_extrinsic(
 /// Creates a new partial node.
 pub fn new_partial(
 	config: &Configuration,
-	eth_config: &EthConfiguration,
+	eth_config: EthConfiguration,
 ) -> Result<
 	sc_service::PartialComponents<
 		FullClient,
@@ -304,8 +305,80 @@ pub fn new_partial(
 		let keystore = keystore_container.keystore();
 		let chain_spec = config.chain_spec.cloned_box();
 
+
+		let mut net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
+		let warp_sync = Arc::new(grandpa::warp_proof::NetworkProvider::new(
+			backend.clone(),
+			import_setup.1.shared_authority_set().clone(),
+			Vec::default(),
+		));
+
+		let import_queues = import_queue.clone();
+		let (network, system_rpc_tx, tx_handler_controller, network_starter, sync_service) =
+			sc_service::build_network(sc_service::BuildNetworkParams {
+				config: &config,
+				net_config,
+				client: client.clone(),
+				transaction_pool: transaction_pool.clone(),
+				spawn_handle: task_manager.spawn_handle(),
+				import_queues,
+				block_announce_validator_builder: None,
+				warp_sync_params: Some(WarpSyncParams::WithProvider(warp_sync)),
+			})?;
+
+
+		// Sinks for pubsub notifications.
+		// Everytime a new subscription is created, a new mpsc channel is added to the sink pool.
+		// The MappingSyncWorker sends through the channel on block import and the subscription emits a notification to the subscriber on receiving a message through this channel.
+		// This way we avoid race conditions when using native substrate block import notification stream.
+		let pubsub_notification_sinks: fc_mapping_sync::EthereumBlockNotificationSinks<
+			fc_mapping_sync::EthereumBlockNotification<Block>,
+		> = Default::default();
+		let pubsub_notification_sinks = Arc::new(pubsub_notification_sinks);
+		let prometheus_registry = config.prometheus_registry().cloned();
+		let filter_pool: Option<FilterPool> = Some(Arc::new(Mutex::new(BTreeMap::new())));
+		let fee_history_cache: FeeHistoryCache = Arc::new(Mutex::new(BTreeMap::new()));
+		let fee_history_cache_limit: FeeHistoryCacheLimit = 1000;
+
+// for ethereum-compatibility rpc.
+// 		*config.rpc_id_provider = Some(Box::new(fc_rpc::EthereumSubIdProvider));
+		let eth_rpc_params = crate::rpc::EthDeps {
+			client: client.clone(),
+			pool: transaction_pool.clone(),
+			graph: transaction_pool.pool().clone(),
+			converter: Some(TransactionConverter),
+			is_authority: config.role.is_authority(),
+			enable_dev_signer: eth_config.enable_dev_signer,
+			network: network.clone(),
+			sync: sync_service.clone(),
+			frontier_backend: match frontier_backend.clone() {
+				fc_db::Backend::KeyValue(b) => Arc::new(b),
+			},
+			overrides: overrides.clone(),
+			block_data_cache: Arc::new(fc_rpc::EthBlockDataCacheTask::new(
+				task_manager.spawn_handle(),
+				overrides.clone(),
+				eth_config.eth_log_block_cache,
+				eth_config.eth_statuses_cache,
+				prometheus_registry.clone(),
+			)),
+			filter_pool: filter_pool.clone(),
+			max_past_logs: eth_config.max_past_logs,
+			fee_history_cache: fee_history_cache.clone(),
+			fee_history_cache_limit,
+			execute_gas_limit_multiplier: eth_config.execute_gas_limit_multiplier,
+			forced_parent_hashes: None,
+		};
+
+
+
+
+
+
+
 		let rpc_backend = backend.clone();
 		let rpc_statement_store = statement_store.clone();
+		let subscription_task_executor = Arc::new(task_manager.spawn_handle());
 		let rpc_extensions_builder = move |deny_unsafe, subscription_executor| {
 			let deps = FullDeps {
 				client: client.clone(),
@@ -326,9 +399,11 @@ pub fn new_partial(
 				},
 				statement_store: rpc_statement_store.clone(),
 				backend: rpc_backend.clone(),
+				eth: eth_rpc_params.clone(),
 			};
 
-			create_full(deps).map_err(Into::into)
+			create_full(deps, subscription_task_executor.clone(),
+						pubsub_notification_sinks.clone(),).map_err(Into::into)
 		};
 
 		(rpc_extensions_builder, shared_voter_state2)
@@ -370,7 +445,7 @@ pub fn new_full_base(
 		&sc_consensus_babe::BabeBlockImport<Block, FullClient, FullGrandpaBlockImport>,
 		&sc_consensus_babe::BabeLink<Block>,
 	),
-	eth_config: &EthConfiguration,
+	eth_config: EthConfiguration,
 ) -> Result<NewFullBase, ServiceError> {
 	let hwbench = (!disable_hardware_benchmarks)
 		.then_some(config.database.path().map(|database_path| {
@@ -739,7 +814,7 @@ pub fn new_full_base(
 pub fn new_full(
 	config: Configuration,
 	disable_hardware_benchmarks: bool,
-	eth_config: &EthConfiguration,
+	eth_config: EthConfiguration,
 ) -> Result<TaskManager, ServiceError> {
 	new_full_base(config, disable_hardware_benchmarks, |_, _| (), eth_config)
 		.map(|NewFullBase { task_manager, .. }| task_manager)
@@ -751,7 +826,7 @@ mod tests {
 	use codec::Encode;
 	use firechain_runtime::{
 		constants::{currency::CENTS, time::SLOT_DURATION},
-		Address, BalancesCall, RuntimeCall, UncheckedExtrinsic,
+		Address, BalancesCall, RuntimeCall, UncheckedExtrinsic,TransactionConverter,
 	};
 	use node_primitives::{Block, DigestItem, Signature};
 	use sc_client_api::BlockBackend;
