@@ -343,6 +343,13 @@ pub fn new_full_base(
 		other: ( import_setup,babe_worker_handle, mut telemetry, statement_store, frontier_backend),
 	} = new_partial(&config, eth_config.clone())?;
 
+	let FrontierPartialComponents {
+		filter_pool,
+		fee_history_cache,
+		fee_history_cache_limit,
+	} = new_frontier_partial(&eth_config)?;
+
+
 	let auth_disc_publish_non_global_ips = config.network.allow_non_globals_in_dht;
 	let mut net_config = sc_network::config::FullNetworkConfiguration::new(&config.network);
 
