@@ -185,8 +185,8 @@ fn staging_testnet_config_genesis() -> RuntimeGenesisConfig {
 pub fn staging_testnet_config() -> ChainSpec {
 	let boot_nodes = vec![];
 	ChainSpec::from_genesis(
-		"Firechain Testnet",
 		"Firechain Staging",
+		"firechain_staging_network",
 		ChainType::Live,
 		staging_testnet_config_genesis,
 		boot_nodes,
