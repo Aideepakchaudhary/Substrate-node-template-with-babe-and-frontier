@@ -1,5 +1,5 @@
 [package]
-name = "firechain-node"
+name = "node-template"
 version = "4.0.0-dev"
 description = "Client node"
 authors = ["5ireChain"]
@@ -11,7 +11,7 @@ build = "build.rs"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [[bin]]
-name = "firechain-node"
+name = "node-template"
 
 [dependencies]
 array-bytes = "6.1"
@@ -130,7 +130,7 @@ fc-storage = { workspace = true }
 
 
 # Local Dependencies
-firechain-runtime = { version = "4.0.0-dev", path = "../runtime" }
+node-template-runtime = { version = "4.0.0-dev", path = "../runtime" }
 node-primitives = { version = "2.0.0", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v1.0.0", default-features = false  }
 
 [build-dependencies]
@@ -190,10 +190,10 @@ cli = [
 
 # Dependencies that are only required if runtime benchmarking should be build.
 runtime-benchmarks = [
-	"firechain-runtime/runtime-benchmarks",
+	"node-template-runtime/runtime-benchmarks",
 	"frame-benchmarking/runtime-benchmarks",
 	"frame-benchmarking-cli/runtime-benchmarks",
 ]
 # Enable features that allow the runtime to be tried and debugged. Name might be subject to change
 # in the near future.
-try-runtime = ["firechain-runtime/try-runtime", "try-runtime-cli/try-runtime"]
+try-runtime = ["node-template-runtime/try-runtime", "try-runtime-cli/try-runtime"]

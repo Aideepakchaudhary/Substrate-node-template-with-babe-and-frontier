@@ -1,13 +1,11 @@
 [package]
-name = "firechain-runtime"
+name = "node-template-runtime"
 version = "4.0.0-dev"
-authors = ["5ire Team <admin@5ire.org>"]
-description = "5ire chain node runtime"
+authors = ["Deepak Chaudhary"]
+description = "node runtime"
 edition = "2021"
 build = "build.rs"
 license = "Apache-2.0"
-homepage = "https://www.5ire.org/"
-repository = "https://github.com/5ire-tech/5ire-evm-base/"
 publish = false
 
 [package.metadata.docs.rs]

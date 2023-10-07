@@ -20,7 +20,7 @@
 
 use fp_evm::GenesisAccount;
 use sp_consensus_grandpa::AuthorityId as GrandpaId;
-use firechain_runtime::{
+use node_template_runtime::{
 	constants::currency::*, wasm_binary_unwrap, BabeConfig, BalancesConfig, Block, CouncilConfig,
 	DemocracyConfig, ElectionsConfig, ImOnlineConfig, IndicesConfig, MaxNominations,
 	NominationPoolsConfig, SessionConfig, SessionKeys, SocietyConfig, StakerStatus, StakingConfig,
@@ -40,7 +40,7 @@ use sp_runtime::{
 };
 use std::{collections::BTreeMap, str::FromStr};
 
-pub use firechain_runtime::{RuntimeGenesisConfig, EVMConfig, GenesisConfig};
+pub use node_template_runtime::{RuntimeGenesisConfig, EVMConfig, GenesisConfig};
 pub use node_primitives::{AccountId, Balance, Signature};
 
 type AccountPublic = <Signature as Verify>::Signer;
@@ -185,8 +185,8 @@ fn staging_testnet_config_genesis() -> RuntimeGenesisConfig {
 pub fn staging_testnet_config() -> ChainSpec {
 	let boot_nodes = vec![];
 	ChainSpec::from_genesis(
-		"Firechain Staging",
-		"firechain_staging_network",
+		"Staging",
+		"staging_network",
 		ChainType::Live,
 		staging_testnet_config_genesis,
 		boot_nodes,
@@ -344,7 +344,7 @@ pub fn testnet_genesis(
 		},
 		sudo: SudoConfig { key: Some(root_key) },
 		babe: BabeConfig {
-			epoch_config: Some(firechain_runtime::BABE_GENESIS_EPOCH_CONFIG),
+			epoch_config: Some(node_template_runtime::BABE_GENESIS_EPOCH_CONFIG),
 			..Default::default()
 		},
 		im_online: ImOnlineConfig { keys: vec![] },
@@ -485,7 +485,7 @@ pub fn development_genesis(
 		},
 		sudo: SudoConfig { key: Some(root_key) },
 		babe: BabeConfig {
-			epoch_config: Some(firechain_runtime::BABE_GENESIS_EPOCH_CONFIG),
+			epoch_config: Some(node_template_runtime::BABE_GENESIS_EPOCH_CONFIG),
 			..Default::default()
 		},
 		im_online: ImOnlineConfig { keys: vec![] },

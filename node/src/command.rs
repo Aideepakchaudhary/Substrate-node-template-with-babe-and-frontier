@@ -23,7 +23,7 @@ use crate::{
 	cli::{Cli, Subcommand},
 };
 use frame_benchmarking_cli::*;
-use firechain_runtime::{ExistentialDeposit, RuntimeApi};
+use node_template_runtime::{ExistentialDeposit, RuntimeApi};
 use node_executor::ExecutorDispatch;
 use node_primitives::Block;
 use sc_cli::{Result, SubstrateCli};
@@ -34,7 +34,7 @@ use std::sync::Arc;
 
 #[cfg(feature = "try-runtime")]
 use {
-	firechain_runtime::constants::time::SLOT_DURATION,
+	node_template_runtime::constants::time::SLOT_DURATION,
 	try_runtime_cli::block_building_info::substrate_info,
 };
 
@@ -52,7 +52,7 @@ macro_rules! construct_async_run {
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		"FireChain Node".into()
+		"Substrate Node".into()
 	}
 
 	fn impl_version() -> String {

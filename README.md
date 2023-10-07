@@ -1,7 +1,7 @@
 <p align="center">
   <img src="/docs/media/5ire-logo.jpeg">
 </p>
-<h1><code>Firechain-Node</code></h1>
+<h1><code>node-template</code></h1>
 
  <strong> 5irechain is a next-generation blockchain innovation.</strong> 🚀.
 
@@ -46,5 +46,5 @@ Use the following command to build the node and run it after build successfully:
 
 ```sh
 cargo build --release
-./target/release/firechian-node --dev --tmp
+./target/release/node-template --dev --tmp
 ```

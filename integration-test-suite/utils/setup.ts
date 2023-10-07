@@ -172,7 +172,7 @@ export function start5ireChainNode(
     .execSync('git rev-parse --show-toplevel')
     .toString()
     .trim();
-  const nodePath = `${gitRoot}/target/release/firechain-node`;
+  const nodePath = `${gitRoot}/target/release/node-template`;
   const ports = {
     alice: { ws: 9944, http: 9933, p2p: 30333 },
     bob: { ws: 9945, http: 9934, p2p: 30334 },
